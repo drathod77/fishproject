@@ -37,20 +37,22 @@ class BoatAdmin(admin.ModelAdmin):
         return f"{date:%d-%b-%Y}"
 
 
+from django.contrib.auth.decorators import permission_required
+
 
 class TokenAdmin(admin.ModelAdmin):
-    
-    list_display = ['fishing_lisence_number','location_of_operation','date_depature','tentative_date','quantity_water','quantity_fuel','owner','number_of_crew']
+   
     fieldsets = [
-        (None,{'fields':('fishing_lisence_number', 'location_of_operation','date_depature','tentative_date','quantity_water','quantity_fuel','owner','number_of_crew')}),
+        (None,{'fields':('fishing_lisence_number','token_number', 'location_of_operation','date_depature','tentative_date','quantity_water','quantity_fuel','owner','number_of_crew')}),
     ]
     def save_model(self, request, obj, form, change):
         if getattr(obj, 'created_at', None) is None:
-            obj.created_by = request.user
+            # obj.created_by = request.user
             obj.created_at = int(time.time())
-        obj.updated_by = request.user
+        # obj.updated_by = request.user
         obj.updated_at = int(time.time())
         obj.save()
+
 
     def created_At(self, obj):
         query = Token_Book.objects.filter(id=obj.pk).get()
@@ -62,8 +64,20 @@ class TokenAdmin(admin.ModelAdmin):
         date = datetime.datetime.fromtimestamp(query.updated_at)
         return f"{date:%d-%b-%Y}"
 
-class AdminTokenAdmin(admin.ModelAdmin):  
-    pass
+    def result(self, obj,request):
+        print(obj.pk)
+        if request.user.is_superuser:
+            query = Token_Book.objects.filter(id=obj.pk)
+            print(query)
+            return mark_safe('<button class="btn btn-success btn-sm badge" onclick="showDetailModel(this,event,%s)" >PASS</button>'%(obj.pk)) 
+        else :
+            return obj
+
+    def get_ordering(self, request):
+        if request.user.is_superuser:
+            return ['fishing_lisence_number','location_of_operation','token_number','date_depature','tentative_date','quantity_water','quantity_fuel','owner','number_of_crew']
+        else:
+            return ['fishing_lisence_number','location_of_operation','token_number','date_depature','tentative_date','quantity_water','quantity_fuel','owner','number_of_crew']
 
 class CrewAdmin(admin.ModelAdmin):
     list_display = ['first_name','middle_name','last_name','aadhar_number','phone_number','alternate_number','email','address','created_by','updated_by','created_At','updated_At']
@@ -73,9 +87,9 @@ class CrewAdmin(admin.ModelAdmin):
     
     def save_model(self, request, obj, form, change):
         if getattr(obj, 'created_at', None) is None:
-            obj.created_by = request.user
+            # obj.created_by = request.user
             obj.created_at = int(time.time())
-        obj.updated_by = request.user
+        # obj.updated_by = request.user
         obj.updated_at = int(time.time())
         obj.save()
 
@@ -101,8 +115,6 @@ class CustomUserAdmin(UserAdmin):
         }),
     )
 admin.site.register(User, CustomUserAdmin)
-admin.site.register(Admin_Token_Book, AdminTokenAdmin)
-
 admin.site.register(Boat_Details,BoatAdmin)
 admin.site.register(Token_Book,TokenAdmin)
 admin.site.register(Crew,CrewAdmin)

@@ -61,17 +61,22 @@ class Boat_Details(models.Model):
     
     class Meta:
         verbose_name_plural = "Boat Details"
-    
+
+status=(
+("1", "Approved"),
+("0", "Rejected"),
+)
 class Token_Book(models.Model):
     fishing_lisence_number = models.CharField(max_length=255,verbose_name='license No.')
     location_of_operation = models.CharField(max_length=255)
+    token_number = models.CharField(max_length=25)
     date_depature = models.DateField(null=True,blank=True)
     tentative_date = models.DateField(null=True,blank=True)
     quantity_fuel = models.DecimalField(max_digits=6,decimal_places=2)
     quantity_water = models.DecimalField(max_digits=6, decimal_places=2)
     owner = models.ForeignKey(User,related_name='Owner1', on_delete=models.CASCADE) 
     number_of_crew = models.ForeignKey('Crew', on_delete=models.CASCADE)
-    approved = models.BooleanField('approved',default=False)
+    approved = models.BooleanField('approved',default=False,choices=status)
     created_at = models.IntegerField()
     updated_at = models.IntegerField()
     created_by = models.ForeignKey(User, related_name='tokencreated_by', on_delete=models.DO_NOTHING)
@@ -83,9 +88,9 @@ class Token_Book(models.Model):
     
     class Meta:
         verbose_name_plural = "Token Book"
-class Admin_Token_Book(models.Model):
-    token_book = models.OneToOneField(Token_Book, on_delete=models.CASCADE)
-    token_number = models.CharField(max_length=25)
+
+# class Admin_Token_Book(models.Model):
+#     token_book = models.OneToOneField(Token_Book, on_delete=models.CASCADE)
 
 class Crew(models.Model):
     phone_message = 'Phone number must start with either 9, 8, 7 or 6 and should enter in this format: 9999955555'
