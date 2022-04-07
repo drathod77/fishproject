@@ -27,6 +27,21 @@ class User(AbstractUser):
     class Meta:
         verbose_name_plural = "Owner Details"
 
+from django.contrib.auth.models import  UserManager
+class StaffManager(UserManager):
+    def get_queryset(self):
+        qs = super().get_queryset()
+        return qs.filter(is_staff=True)
+
+
+class StaffProxyModel(User):
+    objects = StaffManager()
+    class Meta:
+        proxy = True
+        verbose_name = 'Staff'
+        verbose_name_plural = 'Staffs'
+
+
 class Boat_Details(models.Model):
     MATERIAL_WOOD = 'W'
     MATERIAL_IRON = 'I'
@@ -63,8 +78,9 @@ class Boat_Details(models.Model):
         verbose_name_plural = "Boat Details"
 
 status=(
-("1", "Approved"),
-("0", "Rejected"),
+(0, "Rejected"),
+(1, "Approved"),
+(3, "Pending"),
 )
 class Token_Book(models.Model):
     fishing_lisence_number = models.CharField(max_length=255,verbose_name='license No.')
@@ -74,9 +90,9 @@ class Token_Book(models.Model):
     tentative_date = models.DateField(null=True,blank=True)
     quantity_fuel = models.DecimalField(max_digits=6,decimal_places=2)
     quantity_water = models.DecimalField(max_digits=6, decimal_places=2)
-    owner = models.ForeignKey(User,related_name='Owner1', on_delete=models.CASCADE) 
+    owner = models.ForeignKey(Boat_Details,related_name='Owner1', on_delete=models.CASCADE) 
     number_of_crew = models.ForeignKey('Crew', on_delete=models.CASCADE)
-    approved = models.BooleanField('approved',default=False,choices=status)
+    approved = models.PositiveIntegerField(default=3,choices=status,verbose_name='Status')
     created_at = models.IntegerField()
     updated_at = models.IntegerField()
     created_by = models.ForeignKey(User, related_name='tokencreated_by', on_delete=models.DO_NOTHING)

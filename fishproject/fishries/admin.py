@@ -39,18 +39,33 @@ class BoatAdmin(admin.ModelAdmin):
 
 from django.contrib.auth.decorators import permission_required
 
-
 class TokenAdmin(admin.ModelAdmin):
-    list_display=['fishing_lisence_number','location_of_operation','token_number','date_depature','tentative_date','quantity_water','quantity_fuel','owner','number_of_crew','result']
+    # list_display=['fishing_lisence_number','location_of_operation','token_number','date_depature','tentative_date','quantity_water','quantity_fuel','owner','number_of_crew','result']
    
     fieldsets = [
         (None,{'fields':('fishing_lisence_number','token_number', 'location_of_operation','date_depature','tentative_date','quantity_water','quantity_fuel','owner','number_of_crew')}),
     ]
+    def changelist_view(self, request, **kwargs):
+        user = request.user
+        if user.is_superuser == False:
+            print(user.id)
+            # print(user.id.owner_details.all())
+            self.list_display = (
+                'fishing_lisence_number','token_number', 'location_of_operation','date_depature','tentative_date','quantity_water','quantity_fuel','owner','number_of_crew','approved'
+            )
+            # make_log('non-super user')
+        else:
+            self.list_display = (
+                'fishing_lisence_number','location_of_operation','token_number','date_depature','tentative_date','quantity_water','quantity_fuel','owner','number_of_crew','result'
+            )
+            # make_log('superuser')
+        return super(TokenAdmin, self).changelist_view(request, **kwargs)
+
     def save_model(self, request, obj, form, change):
         if getattr(obj, 'created_at', None) is None:
-            # obj.created_by = request.user
+            obj.created_by = request.user
             obj.created_at = int(time.time())
-        # obj.updated_by = request.user
+        obj.updated_by = request.user
         obj.updated_at = int(time.time())
         obj.save()
 
@@ -64,6 +79,7 @@ class TokenAdmin(admin.ModelAdmin):
         query = Token_Book.objects.filter(id=obj.pk).get()
         date = datetime.datetime.fromtimestamp(query.updated_at)
         return f"{date:%d-%b-%Y}"
+        
 
     def result(self, obj):
         print(obj.pk)
@@ -71,7 +87,7 @@ class TokenAdmin(admin.ModelAdmin):
         query = Token_Book.objects.filter(id=obj.pk)
         print(query)
         return mark_safe('<button class="btn btn-success btn-sm badge" onclick="showDetailModel(this,event,%s)" >PASS</button>'%(obj.pk)) 
-
+    
 
     # def get_ordering(self, request):
     
@@ -113,6 +129,7 @@ class CustomUserAdmin(UserAdmin):
                                         'groups', 'user_permissions'),
         }),
     )
+
 admin.site.register(User, CustomUserAdmin)
 admin.site.register(Boat_Details,BoatAdmin)
 admin.site.register(Token_Book,TokenAdmin)
