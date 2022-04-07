@@ -139,6 +139,16 @@ STATIC_URL = '/static/'
 STATICFILES_DIRS = [os.path.abspath(os.path.join(
         BASE_DIR, 'static'))]
 
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = env('EMAIL_HOST')
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True
+EMAIL_HOST_USER = env('EMAIL_HOST_USER')
+EMAIL_HOST_PASSWORD = env('EMAIL_HOST_PASSWORD')
+
+LOGIN_URL="/admin/login"
+LOGIN_REDIRECT_URL = "/admin"
+
 JAZZMIN_SETTINGS = {
     # title of the window (Will default to current_admin_site.site_title if absent or None)
     "site_title": "ગુજરાત મત્સ્યઉધોગ",

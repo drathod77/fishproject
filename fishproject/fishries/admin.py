@@ -41,6 +41,7 @@ from django.contrib.auth.decorators import permission_required
 
 
 class TokenAdmin(admin.ModelAdmin):
+    list_display=['fishing_lisence_number','location_of_operation','token_number','date_depature','tentative_date','quantity_water','quantity_fuel','owner','number_of_crew','result']
    
     fieldsets = [
         (None,{'fields':('fishing_lisence_number','token_number', 'location_of_operation','date_depature','tentative_date','quantity_water','quantity_fuel','owner','number_of_crew')}),
@@ -64,20 +65,18 @@ class TokenAdmin(admin.ModelAdmin):
         date = datetime.datetime.fromtimestamp(query.updated_at)
         return f"{date:%d-%b-%Y}"
 
-    def result(self, obj,request):
+    def result(self, obj):
         print(obj.pk)
-        if request.user.is_superuser:
-            query = Token_Book.objects.filter(id=obj.pk)
-            print(query)
-            return mark_safe('<button class="btn btn-success btn-sm badge" onclick="showDetailModel(this,event,%s)" >PASS</button>'%(obj.pk)) 
-        else :
-            return obj
+        
+        query = Token_Book.objects.filter(id=obj.pk)
+        print(query)
+        return mark_safe('<button class="btn btn-success btn-sm badge" onclick="showDetailModel(this,event,%s)" >PASS</button>'%(obj.pk)) 
 
-    def get_ordering(self, request):
-        if request.user.is_superuser:
-            return ['fishing_lisence_number','location_of_operation','token_number','date_depature','tentative_date','quantity_water','quantity_fuel','owner','number_of_crew']
-        else:
-            return ['fishing_lisence_number','location_of_operation','token_number','date_depature','tentative_date','quantity_water','quantity_fuel','owner','number_of_crew']
+
+    # def get_ordering(self, request):
+    
+        # else:
+        #     return ['fishing_lisence_number','location_of_operation','token_number','date_depature','tentative_date','quantity_water','quantity_fuel','owner','number_of_crew']
 
 class CrewAdmin(admin.ModelAdmin):
     list_display = ['first_name','middle_name','last_name','aadhar_number','phone_number','alternate_number','email','address','created_by','updated_by','created_At','updated_At']
