@@ -76,23 +76,29 @@ class Boat_Details(models.Model):
     
     class Meta:
         verbose_name_plural = "Boat Details"
+class BoatManager(models.Manager):
+    def get_queryset(self, request):
+        query = Boat_Details.objects.filter(owner_details=request.user)
+        if request.user.is_superuser:
+            query = User.objects.all()
+        return query
 
 status=(
 (0, "Rejected"),
 (1, "Approved"),
-(3, "Pending"),
+(2, "Pending"),
 )
 class Token_Book(models.Model):
     fishing_lisence_number = models.CharField(max_length=255,verbose_name='license No.')
     location_of_operation = models.CharField(max_length=255)
-    token_number = models.CharField(max_length=25)
+    token_number = models.CharField(max_length=255,unique=True,null=True)
     date_depature = models.DateField(null=True,blank=True)
     tentative_date = models.DateField(null=True,blank=True)
     quantity_fuel = models.DecimalField(max_digits=6,decimal_places=2)
     quantity_water = models.DecimalField(max_digits=6, decimal_places=2)
     owner = models.ForeignKey(Boat_Details,related_name='Owner1', on_delete=models.CASCADE) 
-    number_of_crew = models.ForeignKey('Crew', on_delete=models.CASCADE)
-    approved = models.PositiveIntegerField(default=3,choices=status,verbose_name='Status')
+    number_of_crew = models.IntegerField()
+    approved = models.PositiveIntegerField(default=2,choices=status,verbose_name='Status')
     created_at = models.IntegerField()
     updated_at = models.IntegerField()
     created_by = models.ForeignKey(User, related_name='tokencreated_by', on_delete=models.DO_NOTHING)
@@ -104,6 +110,13 @@ class Token_Book(models.Model):
     
     class Meta:
         verbose_name_plural = "Token Book"
+
+class BlogManager(models.Manager):
+    def get_queryset(self, request):
+        query = Token_Book.objects.filter(created_by=request.user)
+        if request.user.is_superuser:
+            query = User.objects.all()
+        return query
 
 # class Admin_Token_Book(models.Model):
 #     token_book = models.OneToOneField(Token_Book, on_delete=models.CASCADE)
@@ -124,6 +137,7 @@ class Crew(models.Model):
     aadhar_number = models.CharField(max_length=16, unique=True)
     phone_number =  models.CharField(max_length=12,null=False,unique=True, validators=[phone_regex],help_text=ten_digit)
     alternate_number = models.CharField(max_length=12,null=False, unique=True, validators=[phone_regex],help_text=ten_digit)
+    boat = models.ForeignKey(Boat_Details, on_delete=models.CASCADE)
     email = models.EmailField(unique=True)
     address = models.TextField()
     created_at = models.IntegerField()

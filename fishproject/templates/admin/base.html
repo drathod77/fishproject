@@ -332,13 +332,6 @@
 {% endblock %}
 
 </div>
-<script>
-    function showDetailModel(this,event,id){
-        event.preventDefault();
-        var status = $(this).val();
-        
-    }
-</script>
 
 <!-- jQuery -->
 <script src="{% static 'admin/js/vendor/jquery/jquery.js' %}"></script>
@@ -364,6 +357,50 @@
 {% block extrajs %}
 
 {% endblock %}
+<script>
+    
+    
+    
+    function myFunction(id) {
+        var elem = document.getElementById('myButton' + id)
+        var elem2 = document.getElementById('myButton2' + id)
+        console.log(elem)
+        url = 'http://127.0.0.1:8000/result/approve/'+id
+        $.ajax({
+            url: url,
+            success: function(data) 
+            {  
+                elem.textContent = "Approved"
+                elem2.textContent = "Reject"
+            },
+            error:function(a,b,c)
+            {
+                console.log(c);
+            }   
+        });
+    }
+    function myFunctions(id) {
+        var elem = document.getElementById('myButton'+id)
+        var elem2 = document.getElementById('myButton'+id)
+        url = 'http://127.0.0.1:8000/result/reject/'+id
+        $.ajax({
+            url: url,
+            success: function(data) 
+            {  
+                elem.textContent = "Approve"
+                elem2.textContent = "Rejected"
+            },
+            error:function(a,b,c)
+            {
+              console.log(c);
+            }   
+        });
+    }
+
+    
+
+    
+</script>   
 
 </body>
 </html>

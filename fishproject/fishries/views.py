@@ -34,7 +34,7 @@ from django.contrib.sites.shortcuts import get_current_site
 from django.utils.encoding import smart_str, smart_bytes, DjangoUnicodeDecodeError
 from django.utils.http import urlsafe_base64_decode, urlsafe_base64_encode
 from django.contrib.auth.tokens import PasswordResetTokenGenerator
-from django.http import HttpResponse
+from django.http import HttpResponse,JsonResponse
 from django.shortcuts import render,redirect
 from django.contrib.auth.models import User
 from rest_framework import status
@@ -160,4 +160,21 @@ The Space-O Technologies HR team
         fail_silently=False,
     ) 
     return True
+
+from django.http import HttpResponseRedirect
+from rest_framework.decorators import api_view
+import random, string
+
+@api_view(['GET'])
+def approve_group(request, pk):
+    ran = ''.join(random.choices(string.ascii_uppercase + string.digits, k = 6))    
+    id = Token_Book.objects.filter(pk=pk).update(approved = 1,token_number=str(ran))
+    # return HttpResponseRedirect('/admin/fishries/token_book/')
+    responsi = {'id':id}
+    return JsonResponse(responsi)
+@api_view(['GET'])
+def reject_group(request, pk):
+    id = Token_Book.objects.filter(pk=pk).update(approved = 0,token_number="Your token request has been rejected by authorities")
+    responsi = {'id':id}
+    return JsonResponse(responsi)
 
